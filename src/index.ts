@@ -1,6 +1,17 @@
+import http from "http";
 import { WebSocketServer, WebSocket } from "ws";
 
-const ws = new WebSocketServer({ port: 8080 });
+const PORT = process.env.PORT || 8080;
+
+// Create a basic HTTP server (required by Render)
+const server = http.createServer((req, res) => {
+  res.writeHead(200);
+  res.end("WebSocket server is running");
+});
+
+// Attach WebSocket server to the HTTP server
+const ws = new WebSocketServer({ server });
+
 let userCount = 0;
 
 interface User {
@@ -44,4 +55,9 @@ ws.on("connection", (socket) => {
     allSockets = allSockets.filter((user) => user.socket !== socket);
     console.log("User disconnected");
   });
+});
+
+// Start the HTTP + WebSocket server
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });

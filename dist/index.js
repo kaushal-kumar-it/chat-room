@@ -1,7 +1,18 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+const http_1 = __importDefault(require("http"));
 const ws_1 = require("ws");
-const ws = new ws_1.WebSocketServer({ port: 8080 });
+const PORT = process.env.PORT || 8080;
+// Create a basic HTTP server (required by Render)
+const server = http_1.default.createServer((req, res) => {
+    res.writeHead(200);
+    res.end("WebSocket server is running");
+});
+// Attach WebSocket server to the HTTP server
+const ws = new ws_1.WebSocketServer({ server });
 let userCount = 0;
 let allSockets = [];
 ws.on("connection", (socket) => {
@@ -30,4 +41,8 @@ ws.on("connection", (socket) => {
         allSockets = allSockets.filter((user) => user.socket !== socket);
         console.log("User disconnected");
     });
+});
+// Start the HTTP + WebSocket server
+server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });
